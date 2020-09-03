@@ -1,10 +1,8 @@
 <?php
 
 /**
-* Project Name: Lib Telegram Generator
+* Project Name: Lib Telegram Generator untuk Google Apps Script 
 * Language Code : PHP
-* Build Date : 21/7/2020 (6 am) (Yogyakarta, Indonesia)
-* Author : @aghisna12
 */
 
 //curl method get
@@ -32,11 +30,8 @@ function get_header_info() {
 	$sekarang = new DateTime("now", new DateTimeZone('Asia/Jakarta'));
 	$sekarang = $sekarang->format('Y-m-d H:i:s');
 	$cur_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-	$hasil  = "/**\n*This library was generated from '".$cur_url."'";
-	$hasil .= "\n*Date : ".$sekarang."\n";
-	$hasil .= "\n*Library Name : Telegram";
-	$hasil .= "\n*Language Code : Google Script(gs)";
-	$hasil .= "\n*Credits : Aghisna12\n*/\n\n";
+	$hasil  = "/**\n*This library was generated.";
+	$hasil .= "\n*Date : ".$sekarang."\n*/\n\n";
 	return $hasil;
 }
 
@@ -141,14 +136,14 @@ function build_method($lang = 'c') {
 						}
 					}
 					$required_param = $values['required'];
-					$description_param = $values['description'];
+					/* $description_param = $values['description'];
 					if (strpos($description_param, "<br>") !== false) {
 						$description_param = str_replace("<br>", "\n\t\t//", $description_param);
 					}
 					if (strpos($description_param, "<strong>Note:</strong>") !== false) {
 						$description_param = str_replace("<strong>Note:</strong>", "\n\t\t//", $description_param);
 					}
-					$param_method .= "\n\t\t//".$description_param;
+					$param_method .= "\n\t\t//".$description_param; */
 					if ($lang == 'c') {
 						$param_method .= "\n\t\t".$type_param." ".$nama_param;
 					} elseif ($lang == 'javascript') {
@@ -163,11 +158,12 @@ function build_method($lang = 'c') {
 								$param_method .= ",\n";
 							}
 						} elseif ($lang == 'javascript') {
-							if ($required_param == 'Optional') {
+							/* if ($required_param == 'Optional') {
 								$param_method .= ", //".$type_param." (".$required_param.")\n";
 							} else {
 								$param_method .= ", //".$type_param."\n";
-							}
+							} */
+							$param_method .= ",";
 							$param_object .= ",";
 						}
 					} else {
@@ -175,7 +171,7 @@ function build_method($lang = 'c') {
 							if ($lang == 'c') {
 								$param_method .= " //".$type_param;
 							} elseif ($lang == 'javascript') {
-								$param_method .= " //".$type_param." (".$required_param.")";
+								// $param_method .= " //".$type_param." (".$required_param.")";
 							}
 						}
 					}
@@ -185,7 +181,8 @@ function build_method($lang = 'c') {
 				$hasil  = "\t/**\n\t*".$deskripsi_method."\n\t*\n";
 				$hasil .= "\t*".$nama_method."(";
 				if ($param_method != '') {
-					$hasil .= $param_method."\n\t*";
+					$hasil .= $param_method."\n\t* ~~~~"
+					;
 				}
 				$hasil .= ") {\n\t*}\n\t*/\n\n";
 				$hasils .= $hasil;
@@ -196,9 +193,9 @@ function build_method($lang = 'c') {
 					$hasil .= $param_method."\n\t";
 				}
 				if ($param_object != '') {
-					$hasil .= ") {\n\t\treturn this.requestApi('".$nama_method."', this.buildQuery({".$param_object."\n\t\t}));\n\t}\n\n";
+					$hasil .= ") {\n\t\treturn this.request('".$nama_method."', this.buildQuery({".$param_object."\n\t\t}));\n\t}\n\n";
 				} else {
-					$hasil .= ") {\n\t\treturn this.requestApi('".$nama_method."');\n\t}\n\n";
+					$hasil .= ") {\n\t\treturn this.request('".$nama_method."');\n\t}\n\n";
 				}
 				$hasils .= $hasil;
 			}
@@ -207,7 +204,7 @@ function build_method($lang = 'c') {
 			echo "<pre>".get_header_info()."class Telegram {\npublic:\n\n".$hasils."}</pre>";
 		} elseif ($lang == 'javascript') {
 			$constructor_func = "\t/**\n\t*initialize constructor\n\t*/\n\tconstructor(token) {\n\t\tthis.token = token;\n\t\tthis.urlapi = 'https://api.telegram.org/bot';\n\t}\n\n";
-			$request_api_func = "\t/**\n\t*request api telegram\n\t*/\n\trequestApi(method, data) {\n\t\tvar hasil = {};\n\t\tif (!this.token) {\n\t\t\thasil['response'] = 'failed';\n\t\t\thasil['data'] = 'Bot Token is required';\n\t\t\treturn hasil;\n\t\t}\n\t\tif (!method) {\n\t\t\thasil['response'] = 'failed';\n\t\t\thasil['data'] = 'Method is required';\n\t\t\treturn hasil;\n\t\t} else {\n\t\t\thasil['method'] = method;\n\t\t}\n\t\tvar options = {\n\t\t\t'method':'post',\n\t\t\t'contentType':'application/json'\n\t\t};\n\t\tif (data) {\n\t\t\toptions['payload'] = JSON.stringify(data);\n\t\t}\n\t\tvar response = UrlFetchApp.fetch(this.urlapi + this.token + '/' + method, options);\n\t\tif (response && response.getResponseCode()) {\n\t\t\thasil['response'] = response.getResponseCode();\n\t\t\tif (response.getContentText()) {\n\t\t\t\thasil['data'] = response.getContentText();\n\t\t\t}\n\t\t}\n\t\treturn hasil;\n\t}\n\n";
+			$request_api_func = "\t/**\n\t*request api telegram\n\t*/\n\trequest(method, data, form, blob) {\n\t\tif (!this.token) {\n\t\t\treturn 'Bot Token is required';\n\t\t}\n\t\tif (!method) {\n\t\t\treturn 'Method is required';\n\t\t}\n\t\tvar options = {\n\t\t\t'method':'post',\n\t\t\t'contentType':'application/json'\n\t\t};\n\t\tif (data) {\n\t\t\toptions['payload'] = JSON.stringify(data);\n\t\t\tif (form) options['payload'] = data;\n\t\t}\n\t\tvar response = UrlFetchApp.fetch(this.urlapi + this.token + '/' + method, options);\n\t\tif (response.getResponseCode() == 200) {\n\t\t\tif (blob) {\n\t\t\t\treturn response.getBlob();\n\t\t\t} else {\n\t\t\t\treturn JSON.parse(response.getContentText());\n\t\t\t}\n\t\t}\n\t\treturn false;\n\t}\n\n";
 			$build_query_func = "\t/**\n\t*build query from array\n\t*/\n\tbuildQuery(array) {\n\t\tvar query = {}\n\t\tif (array) {\n\t\t\tfor (var index in array) {\n\t\t\t\tif (array[index]) {\n\t\t\t\t\tvar value = array[index];\n\t\t\t\t\tif (index == 'options') {\n\t\t\t\t\t\tfor (var ix in value) {\n\t\t\t\t\t\t\tif (value[ix]) {\n\t\t\t\t\t\t\t\tquery[ix] = value[ix];\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t} else {\n\t\t\t\t\t\tquery[index] = value;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\treturn query;\n\t}\n\n";
 			echo "<pre style='tab-size:4;'>".get_header_info()."class Telegram {\n\n".$constructor_func.$request_api_func.$build_query_func.$hasils."}</pre>";
 		}
